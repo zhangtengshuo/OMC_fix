@@ -259,6 +259,8 @@ subroutine ga_pdsyevd_(g_a,g_b,eval,nb8)
 
   ! PDSYEVD hangs when a process of the BLACS grid owns no part of the matrix.
   ! Fall back to PDSYEVX there; small matrices are not where PDSYEVD pays off.
+  ! The test here uses maxproc, not nprow/npcol,
+  ! because those are zero on inactive processes and every process must take the same branch.
   if (n <= nb*maxproc) then
     call ga_pdsyevx_(g_a,g_b,eval,nb8)
     return
