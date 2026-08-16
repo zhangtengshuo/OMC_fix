@@ -414,8 +414,8 @@ do JSTA=1,NIN,NBLK
     end if
     call GA_Release(lg_T,iLo,iHi,1,NIN)
   end if
+  if (DoAcc) call GA_Sync() ! wait for all GA_Acc updates to lg_B2 to complete
 end do
-if (DoAcc) call GA_Sync() ! wait for all GA_Acc updates to lg_B2 to complete
 if (NROW_LOC > 0) call mma_deallocate(XLOC)
 call mma_deallocate(TBLK)
 bStat = GA_Destroy(lg_T)
