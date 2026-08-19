@@ -1,0 +1,19 @@
+* Run this module in the FULL-DIMER AB RunFile/ONEINT/Cholesky context.
+* B.RunFile is the final accepted source RASSCF RunFile.
+* A.RunFile is the target fragment RunFile that will later be used by
+* target-fragment RASSCF with partner-B nuclei supplied through XField.
+*
+* Example AO ordering: A = 1...120, B = 121...240.
+
+&EXACTEMB
+SOURCE
+B.RunFile
+121
+TARGET
+A.RunFile
+1
+TOLERANCE
+1.0d-6
+PRINT
+1
+END
