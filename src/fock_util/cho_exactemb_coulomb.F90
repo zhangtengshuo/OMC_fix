@@ -9,8 +9,8 @@
 !
 ! The wrapper deliberately lives inside fock_util so that the program
 ! does not depend directly on the internal Fock_util_interface and
-! Fock_util_global module files.  DLT uses the standard OpenMolcas Fold
-! convention (diagonal once, off-diagonal twice).  FLT is returned in
+! Fock_util_global module files. DLT uses the standard OpenMolcas Fold
+! convention (diagonal once, off-diagonal twice). FLT is returned in
 ! lower-triangular storage and contains only J[DLT].
 !***********************************************************************
 
@@ -28,8 +28,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(8)
 real(kind=wp), intent(in) :: W_DLT(*)
 real(kind=wp), intent(out) :: W_FLT(*)
 
-integer(kind=iwp) :: iRc, iRcFinal, nSq, OldAlgo, nOcc(8)
-logical(kind=iwp) :: OldDeco, OldReord
+integer(kind=iwp) :: iRc, iRcFinal, nSq, nOcc(8)
 type(DSBA_Type) :: FSQ(1)
 real(kind=wp), allocatable :: W_DSQ(:), W_CMO(:)
 
@@ -54,9 +53,9 @@ nOcc(1) = 1
 call Allocate_DT(FSQ(1),nBas,nBas,nSym)
 FSQ(1)%A0(:) = Zero
 
-OldAlgo = ALGO
-OldDeco = Deco
-OldReord = REORD
+! EXACTEMB is a standalone program, so do not read/restore possibly
+! uninitialized fock_util globals. Define the complete contraction mode
+! explicitly for this call.
 ALGO = 1
 Deco = .false.
 REORD = .false.
@@ -76,10 +75,6 @@ call CHO_X_FINAL(iRcFinal)
 if (iRcFinal /= 0) then
   write(u6,*) 'Cho_ExactEmb_Coulomb: warning: CHO_X_FINAL returned rc = ',iRcFinal
 end if
-
-ALGO = OldAlgo
-Deco = OldDeco
-REORD = OldReord
 
 call Deallocate_DT(FSQ(1))
 call mma_deallocate(W_CMO)
