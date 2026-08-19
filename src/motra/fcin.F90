@@ -65,7 +65,7 @@ Temp(:) = Zero
 call DecideOnCholesky(DoCholesky)
 
 if (DoCholesky) then
-  call Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,FLT,nFLT,FSQ,One)
+  call Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,Temp,nFLT,FSQ,One)
 
   ! Print the Fock-matrix
 
@@ -76,7 +76,7 @@ if (DoCholesky) then
       NB = NBAS(ISYM)
       if (NB > 0) then
         write(u6,'(6X,A,I2)') 'symmetry species:',ISYM
-        call TRIPRT(' ',' ',Temp(ISTLTT),NB) ! ??? Temp is zero
+        call TRIPRT(' ',' ',Temp(ISTLTT),NB)
         ISTLTT = ISTLTT+NB*(NB+1)/2
       end if
     end do
