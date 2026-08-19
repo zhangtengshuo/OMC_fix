@@ -65,12 +65,14 @@ real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), D1S(*)
 real(kind=wp), intent(out) :: F(NACPAR)
 real(kind=wp), intent(inout) :: FI(nTot1)
 integer(kind=iwp) :: i, iadd, ibas, icharge, iComp, ioff, iopt, iprlev, irc, iSyLbl, iSym, iTu, j, mxna, mxnb, nAt, nst, nt, &
-                     ntmpfck, ntu, nu, nvxc
-real(kind=wp) :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone, Erf1, Erf2, Erfx, Etwo, potnuc_ref, Time(2)
+                     ntmpfck, ntu, nu, nvxc, ExactEmbActive, ExactEmbNData, ExactEmbRoot
+real(kind=wp) :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone, Erf1, Erf2, Erfx, Etwo, potnuc_ref, Time(2), &
+                 ExactEmbEnergy, ExactEmbNelec, ExactEmbNorm, ExactEmbMax
 character(len=8) :: Label
-logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, Found
+logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, Found, ExactEmbFound, ExactEmbApplied
+logical(kind=iwp), save :: ExactEmbAnnounced = .false.
 real(kind=wp), allocatable :: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:), TmpFckI(:), Tmpx(:), &
-                              Tmpz(:), X0(:), X1(:), X2(:), X3(:)
+                              Tmpz(:), X0(:), X1(:), X2(:), X3(:), ExactEmbPot(:)
 real(kind=wp), external :: dDot_
 
 ! Local print level (if any)
@@ -112,6 +114,43 @@ if (iRc /= 0) then
   write(u6,*) 'iRc = ',iRc
   call Abend()
 end if
+
+! ----------------------------------------------------------------------
+! Exact-density M2 electronic embedding hook.
+! EXACTEMB stores the partner-density Coulomb matrix in the target
+! RunFile.  It is a one-electron operator and must therefore be added to
+! the same Tmp1/OneHam path used by both the orbital optimization and CI.
+! Partner nuclei are handled independently by standard SEWARD XField.
+! ----------------------------------------------------------------------
+ExactEmbApplied = .false.
+ExactEmbActive = 0
+ExactEmbNData = 0
+call Qpg_iScalar('Exact Emb Active',ExactEmbFound)
+if (ExactEmbFound) then
+  call Get_iScalar('Exact Emb Active',ExactEmbActive)
+  if (ExactEmbActive /= 0) then
+    if (Do_OFemb) then
+      write(u6,*) 'SGFCIN: EXACTEMB and OFEMbedding cannot be active simultaneously.'
+      write(u6,*) 'SGFCIN: exact-density M2 contains only V_nuc(partner)+J[P_partner].'
+      call Abend()
+    end if
+    if (nSym /= 1) then
+      write(u6,*) 'SGFCIN: EXACTEMB version 1 requires Group=NoSymm (nSym=1).'
+      call Abend()
+    end if
+    call Qpg_dArray('Exact Emb Pot',ExactEmbFound,ExactEmbNData)
+    if ((.not. ExactEmbFound) .or. (ExactEmbNData /= nTot1)) then
+      write(u6,*) 'SGFCIN: active EXACTEMB record has incompatible Exact Emb Pot size.'
+      write(u6,*) 'SGFCIN: expected = ',nTot1,' found = ',ExactEmbNData
+      call Abend()
+    end if
+    call mma_allocate(ExactEmbPot,nTot1,Label='ExactEmbPot')
+    call Get_dArray('Exact Emb Pot',ExactEmbPot,nTot1)
+    Tmp1(:) = Tmp1(:)+ExactEmbPot(:)
+    ExactEmbApplied = .true.
+  end if
+end if
+
 if (IPRLEV >= DEBUG) then
   write(u6,*)
   write(u6,*) ' CMO in SGFCIN'
@@ -185,16 +224,40 @@ call Fold(nSym,nBas,D1I,Tmp3)
 call Fold(nSym,nBas,D1A,Tmp4)
 Tmp3(:) = Tmp3(:)+Tmp4(:)
 call Put_dArray('D1ao',Tmp3,nTot1)
-!write(u6,*)
-!write(u6,*) ' D1ao in AO basis in SGFCIN'
-!write(u6,*) ' ---------------------'
-!write(u6,*)
-!iOff = 1
-!do iSym=1,nSym
-!  iBas = nBas(iSym)
-!  call TriPrt(' ','(5G17.11)',Tmp3(iOff),iBas)
-!  iOff = iOff+nTri_Elem(iBas)
-!end do
+
+! EXACTEMB iteration diagnostic: expectation value of the electronic
+! embedding operator with the current RASSCF AO density.
+if (ExactEmbApplied) then
+  ExactEmbEnergy = dDot_(nTot1,Tmp3,1,ExactEmbPot,1)
+  ExactEmbNorm = sqrt(dDot_(nTot1,ExactEmbPot,1,ExactEmbPot,1))
+  ExactEmbMax = maxval(abs(ExactEmbPot(1:nTot1)))
+  call Put_dScalar('Exact Emb Energy',ExactEmbEnergy)
+
+  if (.not. ExactEmbAnnounced) then
+    ExactEmbRoot = -1
+    ExactEmbNelec = Zero
+    call Qpg_iScalar('Exact Emb Root',ExactEmbFound)
+    if (ExactEmbFound) call Get_iScalar('Exact Emb Root',ExactEmbRoot)
+    call Qpg_dScalar('Exact Emb Nelec',ExactEmbFound)
+    if (ExactEmbFound) call Get_dScalar('Exact Emb Nelec',ExactEmbNelec)
+    write(u6,*)
+    write(u6,*) '============================================================'
+    write(u6,*) ' RASSCF exact-density electronic embedding is ACTIVE'
+    write(u6,*) ' RunFile operator      : Exact Emb Pot = J[P_partner]'
+    write(u6,*) ' Source RASSCF root    : ',ExactEmbRoot
+    write(u6,'(A,F20.10)') ' Source Tr[P S]        : ',ExactEmbNelec
+    write(u6,'(A,ES14.6)') ' packed ||J||_2        : ',ExactEmbNorm
+    write(u6,'(A,ES14.6)') ' max |J_mn|            : ',ExactEmbMax
+    write(u6,'(A,ES14.6)') ' current <J[P_partner]>: ',ExactEmbEnergy
+    write(u6,*) ' Partner V_nuc must be present through standard SEWARD XField.'
+    write(u6,*) ' OFEMbedding mixing is forbidden for this M2 implementation.'
+    write(u6,*) '============================================================'
+    write(u6,*)
+    ExactEmbAnnounced = .true.
+  end if
+
+  call mma_deallocate(ExactEmbPot)
+end if
 
 ! Generate spin-density
 
