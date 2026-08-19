@@ -1,0 +1,7 @@
+* Disable consumption of a previously stored Exact Emb Pot in A.RunFile.
+* The stale matrix may remain on the RunFile but Exact Emb Active is set to 0.
+
+&EXACTEMB
+CLEAR
+A.RunFile
+END
