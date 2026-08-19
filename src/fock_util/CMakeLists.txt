@@ -13,6 +13,7 @@ set (sources
      cho_cas_drv.F90
      cho_caspt2_getbasenm.F90
      cho_eval_waxy.F90
+     cho_exactemb_coulomb.F90
      cho_fmcscf.F90
      cho_fmo_red.F90
      cho_fock_dft_red.F90
