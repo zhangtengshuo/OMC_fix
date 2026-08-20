@@ -1,0 +1,32 @@
+* Stage 2 complete A-then-B dimer C1/RICD context at 3.5 Angstrom.
+
+&GATEWAY
+Title=Stage 2 parallel ethylene AB cc-pVDZ RICD
+Coord
+12
+parallel ethylene dimer A then B at 3.5 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+RICD
+
+&SEWARD
+Medium Cholesky
+
+>>COPY $Project.RunFile $CurrDir/S2_AB_ricd.RunFile
+>>COPY $Project.OneInt $CurrDir/S2_AB_ricd.OneInt
+>>COPY $Project.ChVec1 $CurrDir/S2_AB_ricd.ChVec1
+>>COPY $Project.ChRed $CurrDir/S2_AB_ricd.ChRed
+>>COPY $Project.ChRst $CurrDir/S2_AB_ricd.ChRst
+>>COPY $Project.ChMap $CurrDir/S2_AB_ricd.ChMap

@@ -1,0 +1,42 @@
+* Self-contained Stage 1 CLEAR validation using the registered short target name EMBTGT.
+
+&GATEWAY
+Title=EXACTEMB self-contained neutral A CLEAR short-name fix
+Coord
+6
+ethylene A at z 0 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+
+&SEWARD
+
+&SCF
+Title=EXACTEMB self-contained neutral A CLEAR short-name fix RHF
+
+&RASSCF
+Title=EXACTEMB self-contained neutral A CLEAR short-name fix CAS(2,2)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile EMBTGT
+
+&EXACTEMB
+CLEAR
+EMBTGT
+END
+
+>>COPY EMBTGT $CurrDir/A_neutral_clear_shortname_fix.cleared.RunFile
+>>COPY $Project.RunFile $CurrDir/A_neutral_clear_shortname_fix.current.RunFile
+>>COPY $Project.RasOrb.1 $CurrDir/A_neutral_clear_shortname_fix.RasOrb
+>>COPY $Project.VecDet.1 $CurrDir/A_neutral_clear_shortname_fix.VecDet

@@ -1,0 +1,10 @@
+* Stage 1 CLEAR test on a copy of the accepted neutral-A RunFile.
+
+>>COPY $CurrDir/A_neutral_clear_target.RunFile A_neutral_clear_target.RunFile
+
+&EXACTEMB
+CLEAR
+A_neutral_clear_target.RunFile
+END
+
+>>COPY A_neutral_clear_target.RunFile $CurrDir/A_neutral_cleared.RunFile

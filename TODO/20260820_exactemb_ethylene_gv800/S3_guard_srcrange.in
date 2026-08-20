@@ -1,0 +1,41 @@
+* Stage 3 guard: SOURCE AO start 73 is outside the 96-AO dimer; EXACTEMB must abort.
+
+&GATEWAY
+Title=Stage 3 guard source AO out of dimer range
+Coord
+12
+parallel ethylene dimer A then B at 3.5 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+RICD
+
+&SEWARD
+Medium Cholesky
+
+>>COPY $CurrDir/S2_B_neutral.RunFile EMBSRC
+>>COPY $CurrDir/S2_A_neutral.RunFile EMBTGT
+
+&EXACTEMB
+SOURCE
+EMBSRC
+73
+TARGET
+EMBTGT
+1
+TOLERANCE
+1.0d-6
+PRINT
+1
+END

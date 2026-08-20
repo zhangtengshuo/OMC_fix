@@ -7,10 +7,10 @@
 
 subroutine RdInp_ExactEmb()
 
-use ExactEmb_Data, only: SourceRunFile, TargetRunFile, SourceFirstAO, TargetFirstAO, PrintLevel, ElectronTolerance, ClearMode, &
+use ExactEmb_Data, only: SourceRunName, TargetRunName, SourceFirstAO, TargetFirstAO, PrintLevel, ElectronTolerance, ClearMode, &
                          Reset_ExactEmb_Input
 use spool, only: SpoolInp
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: LuSpool, ios
@@ -38,10 +38,10 @@ do while (.not. Done)
 
   select case (KeyWord(1:min(4,len_trim(KeyWord))))
   case ('SOUR')
-    call ReadTextLine(LuSpool,SourceRunFile,'SOURCE RunFile')
+    call ReadRunNameLine(LuSpool,SourceRunName,'SOURCE RunFile logical name')
     call ReadIntLine(LuSpool,SourceFirstAO,'SOURCE first AO in dimer')
   case ('TARG')
-    call ReadTextLine(LuSpool,TargetRunFile,'TARGET RunFile')
+    call ReadRunNameLine(LuSpool,TargetRunName,'TARGET RunFile logical name')
     call ReadIntLine(LuSpool,TargetFirstAO,'TARGET first AO in dimer')
   case ('TOLE')
     call ReadRealLine(LuSpool,ElectronTolerance,'TOLERANCE')
@@ -49,7 +49,7 @@ do while (.not. Done)
     call ReadIntLine(LuSpool,PrintLevel,'PRINT')
   case ('CLEA')
     ClearMode = .true.
-    call ReadTextLine(LuSpool,TargetRunFile,'CLEAR target RunFile')
+    call ReadRunNameLine(LuSpool,TargetRunName,'CLEAR target RunFile logical name')
   case ('END ')
     Done = .true.
   case default
@@ -58,15 +58,15 @@ do while (.not. Done)
   end select
 end do
 
-if (len_trim(TargetRunFile) == 0) then
-  write(u6,*) 'EXACTEMB: TARGET RunFile was not specified.'
+if (len_trim(TargetRunName) == 0) then
+  write(u6,*) 'EXACTEMB: TARGET RunFile logical name was not specified.'
   call Abend()
 end if
 
 if (ClearMode) return
 
-if (len_trim(SourceRunFile) == 0) then
-  write(u6,*) 'EXACTEMB: SOURCE RunFile was not specified.'
+if (len_trim(SourceRunName) == 0) then
+  write(u6,*) 'EXACTEMB: SOURCE RunFile logical name was not specified.'
   call Abend()
 end if
 if (SourceFirstAO < 1) then
@@ -102,6 +102,25 @@ subroutine ReadTextLine(LU,Value,What)
     exit
   end do
 end subroutine ReadTextLine
+
+subroutine ReadRunNameLine(LU,Value,What)
+  integer(kind=iwp), intent(in) :: LU
+  character(len=8), intent(out) :: Value
+  character(len=*), intent(in) :: What
+  character(len=256) :: LocalLine
+
+  call ReadTextLine(LU,LocalLine,What)
+  LocalLine = trim(adjustl(LocalLine))
+  if (len_trim(LocalLine) > len(Value)) then
+    write(u6,*) 'EXACTEMB: ',trim(What),' must contain at most 8 characters: ',trim(LocalLine)
+    call Abend()
+  end if
+  if ((index(LocalLine,'/') > 0) .or. (index(LocalLine,achar(92)) > 0)) then
+    write(u6,*) 'EXACTEMB: ',trim(What),' must be a short name in the OpenMolcas work directory, not a path: ',trim(LocalLine)
+    call Abend()
+  end if
+  Value = trim(LocalLine)
+end subroutine ReadRunNameLine
 
 subroutine ReadIntLine(LU,Value,What)
   integer(kind=iwp), intent(in) :: LU

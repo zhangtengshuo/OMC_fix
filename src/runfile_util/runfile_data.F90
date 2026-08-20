@@ -159,6 +159,7 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
 !> - '``Un_cen Coordinates``'
 !> - '``D1ao_PCM``'                 One particle density matrix in AO that polarizes ASCs during RASSCF
 !> - '``SolventWeight``'            Weight of the density matrix used for generating reaction-field
+!> - '``Exact Emb Pot``'            Packed target AO Coulomb embedding matrix.
 
 character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'Analytic Hessian','Center of Charge','Center of Mass  ','CMO_ab          ', & !   1-  4
@@ -212,7 +213,7 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'P2INTER         ','D1AO_MS         ','D1SAO_MS        ','MS_FINAL_ROT    ', & ! 193-196
                                 'F1_PDFT         ','F2_PDFT         ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
                                 'Old_Phase       ','<rhoB|VnucA>    ','D1ao_PCM        ','SolventWeight   ', & ! 201-204
-                                '                ','                ','                ','                ', & ! 205-208
+                                'Exact Emb Pot   ','                ','                ','                ', & ! 205-208
                                 '                ','                ','                ','                ', & ! 209-212
                                 '                ','                ','                ','                ', & ! 213-216
                                 '                ','                ','                ','                ', & ! 217-220
@@ -247,6 +248,10 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
 !> - '``Total Nuclear Charge``'
 !> - '``Numerical Gradient rDelta``'
 !> - '``Total Charge``'              total number of electrons.
+!> - '``Exact Emb Nelec``'           Source electron count mapped into the full-dimer AO basis.
+!> - '``Exact Emb JFrob``'           Frobenius norm of the target Coulomb embedding matrix.
+!> - '``Exact Emb JMax``'            Maximum absolute target Coulomb embedding matrix element.
+!> - '``Exact Emb Energy``'          Current RASSCF expectation value of the embedding operator.
 
 character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
                                 'CASDFT energy   ','CASPT2 energy   ','CASSCF energy   ','Ener_ab         ', & !  1- 4
@@ -258,7 +263,7 @@ character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
                                 'MD_Time         ','NAD dft energy  ','GradLim         ','Average energy  ', & ! 25-28
                                 'Timestep        ','MD_Etot         ','Max error       ','Total Charge    ', & ! 29-32
                                 'DFT exch coeff  ','DFT corr coeff  ','Value_l         ','R_WF_HMC        ', & ! 33-36
-                                '                ','                ','                ','                ', & ! 37-40
+                                'Exact Emb Nelec ','Exact Emb JFrob ','Exact Emb JMax  ','Exact Emb Energy', & ! 37-40
                                 '                ','                ','                ','                ', & ! 41-44
                                 '                ','                ','                ','                ', & ! 45-48
                                 '                ','                ','                ','                ', & ! 49-52
@@ -357,6 +362,12 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
 !> - '``Relax Original root``'
 !> - '``NCONF``'                      For MS-PDFT gradient
 !> - '``RX2C/MXTC_SEWARD``'           For readin_rassi to generate ASD/ASDO labels automatically
+!> - '``Exact Emb Active``'           Enables consumption of the stored exact-density embedding matrix.
+!> - '``Exact Emb Ver``'              EXACTEMB record format version.
+!> - '``Exact Emb Root``'             Source RASSCF relaxation root.
+!> - '``Exact Emb SrcAO``'            First source AO in the full-dimer AO order.
+!> - '``Exact Emb TgtAO``'            First target AO in the full-dimer AO order.
+!> - '``Exact Emb DimAO``'            Full-dimer AO dimension used to construct the embedding matrix.
 
 character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'Multiplicity    ','nMEP            ','No of Internal c','nSym            ', & !   1-  4
@@ -379,8 +390,8 @@ character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'nEFP_Coor       ','Relax Original r','Unique centers  ','nXF             ', & !  69- 72
                                 'CSPF            ','NCONF           ','SH RASSI run    ','isCMSNAC        ', & !  73- 76
                                 'isMECIMSPD      ','CalcNAC_Opt     ','MECI_via_SLAPAF ','RX2C/MXTC_SEWARD', & !  77- 80
-                                '                ','                ','                ','                ', & !  81- 84
-                                '                ','                ','                ','                ', & !  85- 88
+                                'Exact Emb Active','Exact Emb Ver   ','Exact Emb Root  ','Exact Emb SrcAO ', & !  81- 84
+                                'Exact Emb TgtAO ','Exact Emb DimAO ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92
                                 '                ','                ','                ','                ', & !  93- 96
                                 '                ','                ','                ','                ', & !  97-100

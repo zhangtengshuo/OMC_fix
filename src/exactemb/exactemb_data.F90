@@ -12,28 +12,27 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-character(len=256) :: SourceRunFile = ''
-character(len=256) :: TargetRunFile = ''
+character(len=8) :: SourceRunName = ''
+character(len=8) :: TargetRunName = ''
 integer(kind=iwp) :: SourceFirstAO = 0_iwp
 integer(kind=iwp) :: TargetFirstAO = 0_iwp
 integer(kind=iwp) :: PrintLevel = 1_iwp
 real(kind=wp) :: ElectronTolerance = 1.0e-6_wp
 logical(kind=iwp) :: ClearMode = .false.
 
-public :: SourceRunFile, TargetRunFile, SourceFirstAO, TargetFirstAO, PrintLevel, ElectronTolerance, ClearMode
+public :: SourceRunName, TargetRunName, SourceFirstAO, TargetFirstAO, PrintLevel, ElectronTolerance, ClearMode
+public :: Reset_ExactEmb_Input
 
 contains
 
 subroutine Reset_ExactEmb_Input()
-  SourceRunFile = ''
-  TargetRunFile = ''
+  SourceRunName = ''
+  TargetRunName = ''
   SourceFirstAO = 0_iwp
   TargetFirstAO = 0_iwp
   PrintLevel = 1_iwp
   ElectronTolerance = 1.0e-6_wp
   ClearMode = .false.
 end subroutine Reset_ExactEmb_Input
-
-public :: Reset_ExactEmb_Input
 
 end module ExactEmb_Data

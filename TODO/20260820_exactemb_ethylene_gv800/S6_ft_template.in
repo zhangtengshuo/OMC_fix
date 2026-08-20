@@ -1,0 +1,228 @@
+* Stage 6 mutual freeze-thaw cycle: A(n) from B(n-1), B(n) from A(n-1).
+* Seeds in run dir: A_prev.RunFile, B_prev.RunFile. Outputs: A_new/B_new (+RasOrb).
+
+&GATEWAY
+Title=S6 direction A target context (XField = B nuclei)
+Coord
+6
+ethylene A at z 0
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+XField
+6 ANGSTROM 0 0 0 0
+-0.6695  0.0000  3.5  6.0
+ 0.6695  0.0000  3.5  6.0
+-1.2321  0.9230  3.5  1.0
+-1.2321 -0.9230  3.5  1.0
+ 1.2321  0.9230  3.5  1.0
+ 1.2321 -0.9230  3.5  1.0
+
+&SEWARD
+
+&SCF
+Title=S6 A target RHF
+
+>>COPY $Project.RunFile Atgt.RunFile
+
+&GATEWAY
+Title=S6 AB RICD context (direction A)
+Coord
+12
+parallel ethylene dimer A then B at 3.5 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+RICD
+
+&SEWARD
+Medium Cholesky
+
+>>COPY $CurrDir/B_prev.RunFile EMBSRC
+>>COPY Atgt.RunFile EMBTGT
+
+&EXACTEMB
+SOURCE
+EMBSRC
+49
+TARGET
+EMBTGT
+1
+TOLERANCE
+1.0d-6
+PRINT
+1
+END
+
+>>COPY EMBTGT Apot.RunFile
+
+&GATEWAY
+Title=S6 direction A final context (XField = B nuclei)
+Coord
+6
+ethylene A at z 0
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+XField
+6 ANGSTROM 0 0 0 0
+-0.6695  0.0000  3.5  6.0
+ 0.6695  0.0000  3.5  6.0
+-1.2321  0.9230  3.5  1.0
+-1.2321 -0.9230  3.5  1.0
+ 1.2321  0.9230  3.5  1.0
+ 1.2321 -0.9230  3.5  1.0
+
+&SEWARD
+
+&SCF
+Title=S6 A final RHF
+
+>>COPY Apot.RunFile __PROJ__.RunFile
+
+&RASSCF
+Title=S6 A(n) embedded in B(n-1)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile $CurrDir/A_new.RunFile
+>>COPY $Project.RasOrb.1 $CurrDir/A_new.RasOrb
+
+&GATEWAY
+Title=S6 direction B target context (XField = A nuclei)
+Coord
+6
+ethylene B at z 3.5
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+XField
+6 ANGSTROM 0 0 0 0
+-0.6695  0.0000  0.0  6.0
+ 0.6695  0.0000  0.0  6.0
+-1.2321  0.9230  0.0  1.0
+-1.2321 -0.9230  0.0  1.0
+ 1.2321  0.9230  0.0  1.0
+ 1.2321 -0.9230  0.0  1.0
+
+&SEWARD
+
+&SCF
+Title=S6 B target RHF
+
+>>COPY $Project.RunFile Btgt.RunFile
+
+&GATEWAY
+Title=S6 AB RICD context (direction B)
+Coord
+12
+parallel ethylene dimer A then B at 3.5 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+RICD
+
+&SEWARD
+Medium Cholesky
+
+>>COPY $CurrDir/A_prev.RunFile EMBSRC
+>>COPY Btgt.RunFile EMBTGT
+
+&EXACTEMB
+SOURCE
+EMBSRC
+1
+TARGET
+EMBTGT
+49
+TOLERANCE
+1.0d-6
+PRINT
+1
+END
+
+>>COPY EMBTGT Bpot.RunFile
+
+&GATEWAY
+Title=S6 direction B final context (XField = A nuclei)
+Coord
+6
+ethylene B at z 3.5
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+XField
+6 ANGSTROM 0 0 0 0
+-0.6695  0.0000  0.0  6.0
+ 0.6695  0.0000  0.0  6.0
+-1.2321  0.9230  0.0  1.0
+-1.2321 -0.9230  0.0  1.0
+ 1.2321  0.9230  0.0  1.0
+ 1.2321 -0.9230  0.0  1.0
+
+&SEWARD
+
+&SCF
+Title=S6 B final RHF
+
+>>COPY Bpot.RunFile __PROJ__.RunFile
+
+&RASSCF
+Title=S6 B(n) embedded in A(n-1)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile $CurrDir/B_new.RunFile
+>>COPY $Project.RasOrb.1 $CurrDir/B_new.RasOrb

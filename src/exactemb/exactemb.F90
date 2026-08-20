@@ -27,7 +27,7 @@
 
 subroutine ExactEmb(iReturn)
 
-use ExactEmb_Data, only: SourceRunFile, TargetRunFile, SourceFirstAO, TargetFirstAO, PrintLevel, ElectronTolerance, ClearMode
+use ExactEmb_Data, only: SourceRunName, TargetRunName, SourceFirstAO, TargetFirstAO, PrintLevel, ElectronTolerance, ClearMode
 use Index_Functions, only: iTri
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -58,13 +58,13 @@ ExactEmbVersion = 1
 ! RunFile but RASSCF will not consume it while Exact Emb Active == 0.
 ! ----------------------------------------------------------------------
 if (ClearMode) then
-  call NameRun(trim(TargetRunFile))
+  call NameRun(TargetRunName)
   call Put_iScalar('Exact Emb Active',0_iwp)
   call Put_iScalar('Exact Emb Ver',ExactEmbVersion)
   call Put_dScalar('Exact Emb Energy',Zero)
   call NameRun('#Pop')
   write(u6,*)
-  write(u6,*) 'EXACTEMB: embedding flag cleared in target RunFile: ',trim(TargetRunFile)
+  write(u6,*) 'EXACTEMB: embedding flag cleared in target RunFile: ',trim(TargetRunName)
   return
 end if
 
@@ -100,7 +100,7 @@ nIshS(:) = 0
 SourceRoot = -1
 nData = 0
 
-call NameRun(trim(SourceRunFile))
+call NameRun(SourceRunName)
 call Get_iScalar('nSym',nSymS)
 if (nSymS /= 1) then
   write(u6,*) 'EXACTEMB: source fragment must use Group=NoSymm (nSym=1).'
@@ -138,7 +138,7 @@ call NameRun('#Pop')
 ! Read target dimensions. The target RunFile receives the J operator.
 ! ----------------------------------------------------------------------
 nBasT(:) = 0
-call NameRun(trim(TargetRunFile))
+call NameRun(TargetRunName)
 call Get_iScalar('nSym',nSymT)
 if (nSymT /= 1) then
   write(u6,*) 'EXACTEMB: target fragment must use Group=NoSymm (nSym=1).'
@@ -233,7 +233,7 @@ end do
 
 call Packed_Matrix_Norms(JTarget,nT,JPackedNorm,JFrob,JMax)
 
-call NameRun(trim(TargetRunFile))
+call NameRun(TargetRunName)
 call Put_iScalar('Exact Emb Active',1_iwp)
 call Put_iScalar('Exact Emb Ver',ExactEmbVersion)
 call Put_iScalar('Exact Emb Root',SourceRoot)
@@ -251,8 +251,8 @@ if (PrintLevel >= 0) then
   write(u6,*) '============================================================'
   write(u6,*) ' OpenMolcas EXACTEMB: exact-density Coulomb embedding built'
   write(u6,*) '============================================================'
-  write(u6,*) ' Source RunFile        : ',trim(SourceRunFile)
-  write(u6,*) ' Target RunFile        : ',trim(TargetRunFile)
+  write(u6,*) ' Source RunFile        : ',trim(SourceRunName)
+  write(u6,*) ' Target RunFile        : ',trim(TargetRunName)
   write(u6,*) ' Source relaxation root: ',SourceRoot
   write(u6,*) ' Dimer AO count        : ',nD
   write(u6,*) ' Source AO block       : ',SourceFirstAO,SrcLast

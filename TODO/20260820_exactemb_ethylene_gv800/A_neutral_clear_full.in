@@ -1,0 +1,39 @@
+* Self-contained Stage 1 CLEAR validation with a newly generated current RunFile.
+
+&GATEWAY
+Title=EXACTEMB self-contained neutral A CLEAR validation
+Coord
+6
+ethylene A at z 0 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+
+&SEWARD
+
+&SCF
+Title=EXACTEMB self-contained neutral A CLEAR RHF
+
+&RASSCF
+Title=EXACTEMB self-contained neutral A CLEAR CAS(2,2)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+&EXACTEMB
+CLEAR
+A_neutral_clear_full.RunFile
+END
+
+>>COPY $Project.RunFile $CurrDir/A_neutral_clear_full.final.RunFile
+>>COPY $Project.RasOrb.1 $CurrDir/A_neutral_clear_full.RasOrb
+>>COPY $Project.VecDet.1 $CurrDir/A_neutral_clear_full.VecDet

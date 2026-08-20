@@ -1,0 +1,34 @@
+* Stage 1 no-active regression retry after repairing only the Slurm runner parent-directory creation.
+
+&GATEWAY
+Title=EXACTEMB stage1 neutral A baseline retry1
+Coord
+6
+ethylene A at z 0 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+
+&SEWARD
+
+&SCF
+Title=EXACTEMB stage1 neutral A RHF baseline retry1
+
+&RASSCF
+Title=EXACTEMB stage1 neutral A CAS(2,2) baseline retry1
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile $CurrDir/A_neutral_baseline.RunFile
+>>COPY $Project.RasOrb.1 $CurrDir/A_neutral_baseline.RasOrb
+>>COPY $Project.VecDet.1 $CurrDir/A_neutral_baseline.VecDet

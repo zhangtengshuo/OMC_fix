@@ -263,10 +263,10 @@ The source density itself is not copied into the target RunFile.
 ```text
 &EXACTEMB
 SOURCE
-B.RunFile
+EMBSRC
 121
 TARGET
-A.RunFile
+EMBTGT
 1
 TOLERANCE
 1.0d-6
@@ -279,28 +279,34 @@ Semantics:
 
 ```text
 SOURCE
-<source fragment RunFile>
+<source fragment RunFile short name>
 <first source AO in current full-dimer AO order>
 
 TARGET
-<target fragment RunFile>
+<target fragment RunFile short name>
 <first target AO in current full-dimer AO order>
 ```
 
-`SOURCE` and `TARGET` file names are passed directly to OpenMolcas `NameRun`; they must be accessible in the current work directory/environment.
+`SOURCE` and `TARGET` are OpenMolcas RunFile logical names, not physical paths. `NameRun` stores at most eight characters, so EXACTEMB rejects names longer than eight characters and names containing a path separator instead of silently truncating them.
+
+The EXACTEMB driver registers the recommended names `EMBSRC` and `EMBTGT` as files in `$WorkDir`. Populate them before invoking the module, for example with `>>COPY B0.RunFile EMBSRC` and `>>COPY A.RunFile EMBTGT`; other short names are permitted only when the corresponding files already exist in the OpenMolcas work directory.
+
+Generate the participating RunFiles with a build that contains the registered `Exact Emb *` RunFile labels. A RunFile created by an earlier development build can retain an older on-disk label table and should be regenerated in a complete input instead of reused across this interface change.
 
 `PRINT` currently controls the summary diagnostics; nonnegative values print the construction summary.
 
 ### 8.2 Clear a target RunFile
 
 ```text
+>>COPY $Project.RunFile EMBTGT
+
 &EXACTEMB
 CLEAR
-A.RunFile
+EMBTGT
 END
 ```
 
-This sets `Exact Emb Active=0`. A stale potential can therefore remain physically present in the RunFile without being consumed by RASSCF.
+This sets `Exact Emb Active=0` in the work-directory file `EMBTGT`. A stale potential can therefore remain physically present in the RunFile without being consumed by RASSCF.
 
 ---
 
@@ -313,11 +319,11 @@ There are two integral contexts and they must not be confused.
 Used only to build the Coulomb operator:
 
 ```text
-AB.RunFile
-AB.ONEINT
+current AB RunFile
+current AB ONEINT
 AB Cholesky/RI-CD files
-B.RunFile   (source density)
-A.RunFile   (target metadata / output record)
+EMBSRC      (short work-directory source RunFile)
+EMBTGT      (short work-directory target RunFile and output record)
 ```
 
 The current RunFile when `&EXACTEMB` starts must be the full-dimer AB RunFile, and the current Cholesky files must be those generated for the same dimer geometry/basis.
@@ -344,9 +350,9 @@ For A <- B:
 1. Run final isolated/source RASSCF for B at the exact dimer geometry/orientation and save `B0.RunFile`.
 2. Prepare the target A integral context with standard SEWARD and partner-B nuclear XField.
 3. Prepare a full-dimer AB C1 SEWARD Cholesky/RI-CD context with the same basis and AO order.
-4. In the full-dimer context, make `B0.RunFile` and the target `A.RunFile` accessible.
-5. Run `&EXACTEMB` with B as SOURCE and A as TARGET.
-6. Return the modified `A.RunFile` to A's target-fragment work directory.
+4. In the full-dimer context, copy `B0.RunFile` to the short work-directory name `EMBSRC` and copy the target `A.RunFile` to `EMBTGT`.
+5. Run `&EXACTEMB` with `EMBSRC` as SOURCE and `EMBTGT` as TARGET.
+6. Return the modified `EMBTGT` to A's target-fragment work directory under the desired persistent RunFile name.
 7. Run A RASSCF. SGFCIN reads `Exact Emb Pot` and optimizes with
 
 \[
@@ -446,7 +452,7 @@ This branch was intentionally not compiled or numerically tested before handoff.
 1. `exactemb.exe` is discovered by CMake and linked against `libmolcas`.
 2. `Fock_util_interface::CHORAS_DRV` is visible to the new program.
 3. the current OpenMolcas compiler accepts the `DSBA_Type` allocation/reference calls used in `exactemb.F90`.
-4. `NameRun` can open the supplied source/target RunFile names in the chosen work directory.
+4. the supplied source/target RunFile logical names contain at most eight characters, contain no path separator, and resolve to files in the OpenMolcas work directory.
 5. source/target RunFiles were created with a parallel environment compatible with the `EXACTEMB` run; stock OpenMolcas RunFile opening can reject a changed process count.
 6. the full-dimer Cholesky files remain available when `&EXACTEMB` executes.
 
@@ -525,6 +531,7 @@ and propagate the resulting fragment states into the unchanged bare-Hamiltonian 
 
 `EXACTEMB` hard-aborts on:
 
+- a source or target RunFile logical name longer than eight characters or containing a path separator;
 - non-C1 dimer/source/target;
 - non-Cholesky full-dimer context;
 - missing or wrong-size source `D1ao`;

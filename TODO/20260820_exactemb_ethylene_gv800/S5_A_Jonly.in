@@ -1,0 +1,140 @@
+* Stage 5 Test 5: J-only response. A RASSCF with Exact Emb Pot = J[P_B], no partner nuclei.
+* Contexts: B source -> AB RICD (EXACTEMB) -> A context with injected RunFile.
+
+&GATEWAY
+Title=Stage 5 B source context
+Coord
+6
+ethylene B at z 3.5
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+
+&SEWARD
+
+&SCF
+Title=Stage 5 B RHF
+
+&RASSCF
+Title=Stage 5 B0 CASSCF(2e,2o)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile B0.RunFile
+
+&GATEWAY
+Title=Stage 5 A isolated context
+Coord
+6
+ethylene A at z 0
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+
+&SEWARD
+
+&SCF
+Title=Stage 5 A0 RHF
+
+&RASSCF
+Title=Stage 5 A0 isolated CASSCF(2e,2o)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile A0.RunFile
+
+&GATEWAY
+Title=Stage 5 AB RICD context
+Coord
+12
+parallel ethylene dimer A then B at 3.5 Angstrom
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+C  -0.6695   0.0000   3.5000
+C   0.6695   0.0000   3.5000
+H  -1.2321   0.9230   3.5000
+H  -1.2321  -0.9230   3.5000
+H   1.2321   0.9230   3.5000
+H   1.2321  -0.9230   3.5000
+Basis=cc-pVDZ
+Group=NoSymm
+RICD
+
+&SEWARD
+Medium Cholesky
+
+>>COPY B0.RunFile EMBSRC
+>>COPY A0.RunFile EMBTGT
+
+&EXACTEMB
+SOURCE
+EMBSRC
+49
+TARGET
+EMBTGT
+1
+TOLERANCE
+1.0d-6
+PRINT
+1
+END
+
+>>COPY EMBTGT A1.RunFile
+
+&GATEWAY
+Title=Stage 5 A context for embedded RASSCF
+Coord
+6
+ethylene A at z 0
+C  -0.6695   0.0000   0.0000
+C   0.6695   0.0000   0.0000
+H  -1.2321   0.9230   0.0000
+H  -1.2321  -0.9230   0.0000
+H   1.2321   0.9230   0.0000
+H   1.2321  -0.9230   0.0000
+Basis=cc-pVDZ
+Group=NoSymm
+
+&SEWARD
+
+&SCF
+Title=Stage 5 A RHF restart
+
+>>COPY A1.RunFile S5_A_Jonly.RunFile
+
+&RASSCF
+Title=Stage 5 A embedded J-only CASSCF(2e,2o)
+FileOrb=SCFORB
+Charge=0
+Spin=1
+NActEl=2
+Ras2=2
+PRWF=1.0d-6
+PRSD
+
+>>COPY $Project.RunFile A1_final.RunFile
+>>COPY $Project.RasOrb.1 A1_final.RasOrb
