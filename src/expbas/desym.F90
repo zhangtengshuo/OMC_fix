@@ -75,7 +75,7 @@ subroutine desym(ireturn)
   use Center_Info, only: dc
   use linalg_mod, only: verify_
   use Symmetry_Info, only: nIrrep
-  use info_expbas_mod, only: DoExpbas, EB_FileOrb, n_orb_kinds
+  use info_expbas_mod, only: DoExpbas, EB_FileOrb, n_orb_kinds, DoGugaOrder
   use Molcas, only: LenIn, MxAtom, MxSym
   use Constants, only: Zero
 
@@ -457,19 +457,26 @@ contains
   !>  input orbitals are automatically by irrep the output
   !>  will be sorted last ascendingly by irrep.
   pure function closure_compare(i,j) result(res)
+    use info_expbas_mod, only: DoGugaOrder
     logical(kind=iwp) :: res
     integer(kind=iwp), intent(in) :: i, j
 
-    if (kind_per_orb(i) /= kind_per_orb(j)) then
-      res = kind_per_orb(i) < kind_per_orb(j)
-    else if (occ(i) /= occ(j)) then
-      res = occ(i) > occ(j)
-    else if (energy(i) /= energy(j)) then
-      res = energy(i) < energy(j)
+    if (DoGugaOrder) then
+      if (kind_per_orb(i) /= kind_per_orb(j)) then
+        res = kind_per_orb(i) < kind_per_orb(j)
+      else
+        res = .true.
+      end if
     else
-      ! All relevant values are equal and our comparison has
-      ! to be non-strict.
-      res = .true.
+      if (kind_per_orb(i) /= kind_per_orb(j)) then
+        res = kind_per_orb(i) < kind_per_orb(j)
+      else if (occ(i) /= occ(j)) then
+        res = occ(i) > occ(j)
+      else if (energy(i) /= energy(j)) then
+        res = energy(i) < energy(j)
+      else
+        res = .true.
+      end if
     end if
   end function closure_compare
 
@@ -521,19 +528,26 @@ end subroutine reorder_orbitals
 !>  will be sorted last ascendingly by irrep.
 pure function compare(i,j) result(res)
 
+  use info_expbas_mod, only: DoGugaOrder
   logical(kind=iwp) :: res
   integer(kind=iwp), intent(in) :: i, j
 
-  if (kind_per_orb(i) /= kind_per_orb(j)) then
-    res = kind_per_orb(i) < kind_per_orb(j)
-  else if (occ(i) /= occ(j)) then
-    res = occ(i) > occ(j)
-  else if (energy(i) /= energy(j)) then
-    res = energy(i) < energy(j)
+  if (DoGugaOrder) then
+    if (kind_per_orb(i) /= kind_per_orb(j)) then
+      res = kind_per_orb(i) < kind_per_orb(j)
+    else
+      res = .true.
+    end if
   else
-    ! All relevant values are equal and our comparison has
-    ! to be non-strict.
-    res = .true.
+    if (kind_per_orb(i) /= kind_per_orb(j)) then
+      res = kind_per_orb(i) < kind_per_orb(j)
+    else if (occ(i) /= occ(j)) then
+      res = occ(i) > occ(j)
+    else if (energy(i) /= energy(j)) then
+      res = energy(i) < energy(j)
+    else
+      res = .true.
+    end if
   end if
 
 end function compare

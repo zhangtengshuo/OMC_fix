@@ -14,7 +14,7 @@
 subroutine Readinp_expbas()
 ! Author: G. Li Manni (University of Geneva)
 
-use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
+use info_expbas_mod, only: DoExpbas, DoDesy, DoGugaOrder, EB_FileOrb
 use spool, only: Spoolinp
 use Definitions, only: iwp, u6
 
@@ -28,6 +28,7 @@ character(len=180), external :: Get_Ln
 
 DoExpbas = .true.
 DoDesy = .false.
+DoGugaOrder = .false.
 EB_FileOrb = ' '
 
 LuSpool = 18
@@ -48,6 +49,8 @@ do
       DoExpbas = .false.
     case ('DESY')
       DoDesy = .true.
+    case ('GUGA')
+      DoGugaOrder = .true.
     case ('FILE')
       Line = Get_Ln(LuSpool)
       call FileOrb(Line,EB_FileOrb)

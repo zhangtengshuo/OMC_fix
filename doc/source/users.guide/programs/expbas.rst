@@ -150,6 +150,24 @@ Optional general keywords
               </HELP>
               </KEYWORD>
 
+:kword:`GUGAORDER`
+  Only meaningful with :kword:`DESYmmetrize`. Use a GUGA-compatible orbital
+  ordering instead of the default occupation/energy-based sort.
+  Orbitals are sorted by kind (frozen, inactive, RAS1, RAS2, RAS3,
+  secondary, deleted) while preserving the original within-kind order.
+  This ensures that the active orbital order remains consistent with
+  GUGA CI determinant occupation strings. When this keyword is absent,
+  the default behavior sorts by kind, then occupation (descending),
+  then orbital energy (ascending), which may reorder active orbitals
+  and break compatibility with VecDet occupation strings.
+
+  .. xmldoc:: <KEYWORD MODULE="EXPBAS" NAME="GUGA" APPEAR="GUGA-compatible orbital ordering" LEVEL="BASIC" KIND="SINGLE">
+              %%Keyword: GUGA <basic>
+              <HELP>
+              Use GUGA-compatible orbital ordering with DESYmmetrize.
+              </HELP>
+              </KEYWORD>
+
 :kword:`FILEorb`
   The next line specifies the filename containing the original orbitals that will
   be expanded to the larger basis set. By default a file named :file:`INPORB` will be used.

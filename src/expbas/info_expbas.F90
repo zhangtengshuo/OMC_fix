@@ -25,10 +25,10 @@ integer(kind=iwp) :: nBas1(MxSym), nBas2(MxSym), nSym1, nSym2
 #ifdef _HDF5_
 integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
-logical(kind=iwp) :: DoExpbas, DoDesy
+logical(kind=iwp) :: DoExpbas, DoDesy, DoGugaOrder
 character(len=512) :: EB_FileOrb
 
-public :: DoDesy, DoExpbas, EB_FileOrb, n_orb_kinds, nBas1, nBas2, nSym1, nSym2
+public :: DoDesy, DoExpbas, DoGugaOrder, EB_FileOrb, n_orb_kinds, nBas1, nBas2, nSym1, nSym2
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
